@@ -66,16 +66,20 @@ exports.requestBook = function(req, res, next) {
     const address = req.body.address;
     const bookId = req.body.bookId;
     
-    const buyersInfo = {};
-    buyersInfo[userName] = {
-        address, "status":"Request Pending"
-    };
-    
-    Book.findOneAndUpdate({_id:bookId}, {buyersInfo}, function(err, data) {
+    Book.findOne({_id:bookId}, function(err, book) {
         if(err) {
            next(err);
-        } 
-       res.json({status:"Updated"});
+        }
+        const buyersInfo = book.buyersInfo;
+        buyersInfo[userName] = {
+            address, "status":"Request Pending"
+        };
+        Book.findOneAndUpdate({_id:bookId}, {buyersInfo}, function(err, data) {
+            if(err) {
+              next(err);
+            } 
+          res.json({status:"Updated"});
+        }); 
     });
 };
 
